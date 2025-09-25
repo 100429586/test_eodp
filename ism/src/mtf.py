@@ -92,6 +92,7 @@ class mtf:
         :return fnAlt: 1D normalised frequencies 2D ALT (f/(1/w))
         """
         #TODO
+
         return fn2D, fr2D, fnAct, fnAlt
 
     def mtfDiffract(self,fr2D):
