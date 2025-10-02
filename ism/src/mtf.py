@@ -124,7 +124,8 @@ class mtf:
         :return: diffraction MTF
         """
         #TODO
-        Hdiff = 1 - fr2D
+        #fr2D_clip = np.clip(fr2D, -1, 1)
+        Hdiff = (2 / np.pi)* (np.arccos(fr2D) - fr2D * (1-fr2D**2)**0.5)
         return Hdiff
 
 
@@ -164,6 +165,7 @@ class mtf:
         :return: detector MTF
         """
         #TODO
+        Hdet = np.abs(np.sinc(fn2D))
         return Hdet
 
     def mtfSmearing(self, fnAlt, ncolumns, ksmear):
@@ -175,6 +177,8 @@ class mtf:
         :return: Smearing MTF
         """
         #TODO
+        fnAlt = np.repeat(fnAlt[:, None], ncolumns, axis=1)
+        Hsmear = np.sinc(ksmear * fnAlt)
         return Hsmear
 
     def mtfMotion(self, fn2D, kmotion):
@@ -185,6 +189,7 @@ class mtf:
         :return: detector MTF
         """
         #TODO
+        Hmotion = np.sinc(kmotion*fn2D)
         return Hmotion
 
     def plotMtf(self,Hdiff, Hdefoc, Hwfe, Hdet, Hsmear, Hmotion, Hsys, nlines, ncolumns, fnAct, fnAlt, directory, band):
