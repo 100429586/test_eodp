@@ -124,6 +124,7 @@ class mtf:
         :return: diffraction MTF
         """
         #TODO
+        Hdiff = 1 - fr2D
         return Hdiff
 
 
@@ -137,6 +138,8 @@ class mtf:
         :return: Defocus MTF
         """
         #TODO
+        x = np.pi * defocus * fr2D * (1 - fr2D)
+        Hdefoc = (2 * j1(x)) / x
         return Hdefoc
 
     def mtfWfeAberrations(self, fr2D, lambd, kLF, wLF, kHF, wHF):
