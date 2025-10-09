@@ -105,7 +105,7 @@ class detectionPhase(initIsm):
         :return: Toa in photons
         """
         #TODO
-        E_in = toa * area_pix * tint
+        E_in = toa * (10**-3) * area_pix * tint
         E_photon = (self.constants.h_planck * self.constants.speed_light) / wv
         toa_ph = E_in / E_photon
         return toa_ph
