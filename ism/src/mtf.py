@@ -210,6 +210,62 @@ class mtf:
         :param band: band
         :return: N/A
         """
-        #TODO
 
+        # --- Helper function: extract 1D slice (ACT or ALT) ---
+        def extract_slice(H, axis_size, is_act=True):
+            center = axis_size // 2
+            return H[center, :] if is_act else H[:, center]
 
+        # --- Helper function: filter positive frequencies ---
+        def positive_part(freqs, values):
+            mask = freqs >= 0
+            return freqs[mask], values[mask]
+
+        # --- Dictionary of all MTF contributors ---
+        mtf_components = {
+            "Diffraction MTF": Hdiff,
+            "Defocus MTF": Hdefoc,
+            "WFE Aberrations MTF": Hwfe,
+            "Detector MTF": Hdet,
+            "Smearing MTF": Hsmear,
+            "Motion blur MTF": Hmotion,
+            "System MTF": Hsys
+        }
+
+        # ==============================
+        #  ACT SLICE  (horizontal cut)
+        # ==============================
+        center_alt = nlines // 2
+        plt.figure(figsize=(8, 6))
+        for label, H in mtf_components.items():
+            slice_act = extract_slice(H, nlines, is_act=True)
+            fnAct_pos, slice_act_pos = positive_part(fnAct, slice_act)
+            plt.plot(fnAct_pos, slice_act_pos, label=label,
+                     linewidth=2 if label == "System MTF" else 1)
+
+        plt.axvline(0.5, color='k', linestyle='--', label="f Nyquist")
+        plt.xlabel("Spatial frequency f/(1/w) [-]")
+        plt.ylabel("MTF")
+        plt.title(f"System MTF - ACT slice ({band})")
+        plt.legend(loc="best")
+        plt.grid(True)
+        plt.show()
+
+        # ==============================
+        #  ALT SLICE  (vertical cut)
+        # ==============================
+        center_act = ncolumns // 2
+        plt.figure(figsize=(8, 6))
+        for label, H in mtf_components.items():
+            slice_alt = extract_slice(H, ncolumns, is_act=False)
+            fnAlt_pos, slice_alt_pos = positive_part(fnAlt, slice_alt)
+            plt.plot(fnAlt_pos, slice_alt_pos, label=label,
+                     linewidth=2 if label == "System MTF" else 1)
+
+        plt.axvline(0.5, color='k', linestyle='--', label="f Nyquist")
+        plt.xlabel("Spatial frequency f/(1/w) [-]")
+        plt.ylabel("MTF")
+        plt.title(f"System MTF - ALT slice ({band})")
+        plt.legend(loc="best")
+        plt.grid(True)
+        plt.show()
