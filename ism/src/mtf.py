@@ -211,15 +211,41 @@ class mtf:
         :return: N/A
         """
 
-        # --- Helper function: extract 1D slice (ACT or ALT) ---
+        # --- Helper functions ---
         def extract_slice(H, axis_size, is_act=True):
             center = axis_size // 2
             return H[center, :] if is_act else H[:, center]
 
-        # --- Helper function: filter positive frequencies ---
+        def clean_array(H):
+            """Replace NaN or inf with 0."""
+            return np.nan_to_num(H, nan=0.0, posinf=0.0, neginf=0.0)
+
+        def normalize_freqs(freqs, npoints):
+            """
+            Ensure frequency axis goes exactly from -0.5 to 0.5.
+            This avoids curves stopping before reaching Nyquist.
+            """
+            return np.linspace(-0.5, 0.5, npoints)
+
         def positive_part(freqs, values):
             mask = freqs >= 0
             return freqs[mask], values[mask]
+
+        def mtf_at_nyquist(freqs, mtf_values):
+            """Interpolate to find MTF value at f = 0.5 (Nyquist)."""
+            return np.interp(0.5, freqs, mtf_values)
+
+        # --- Clean and normalize data ---
+        Hdiff = clean_array(Hdiff)
+        Hdefoc = clean_array(Hdefoc)
+        Hwfe = clean_array(Hwfe)
+        Hdet = clean_array(Hdet)
+        Hsmear = clean_array(Hsmear)
+        Hmotion = clean_array(Hmotion)
+        Hsys = clean_array(Hsys)
+
+        fnAct = normalize_freqs(fnAct, ncolumns)
+        fnAlt = normalize_freqs(fnAlt, nlines)
 
         # --- Dictionary of all MTF contributors ---
         mtf_components = {
@@ -233,39 +259,57 @@ class mtf:
         }
 
         # ==============================
-        #  ACT SLICE  (horizontal cut)
+        #  ACT SLICE
         # ==============================
-        center_alt = nlines // 2
+        fnAct_pos, Hsys_act_pos = positive_part(fnAct, extract_slice(Hsys, nlines, is_act=True))
+        mtf_nyquist_act = mtf_at_nyquist(fnAct_pos, Hsys_act_pos)
+
         plt.figure(figsize=(8, 6))
         for label, H in mtf_components.items():
-            slice_act = extract_slice(H, nlines, is_act=True)
-            fnAct_pos, slice_act_pos = positive_part(fnAct, slice_act)
-            plt.plot(fnAct_pos, slice_act_pos, label=label,
-                     linewidth=2 if label == "System MTF" else 1)
+            fn_pos, H_pos = positive_part(fnAct, extract_slice(H, nlines, is_act=True))
+            plt.plot(fn_pos, H_pos, label=label, linewidth=2 if label == "System MTF" else 1)
 
         plt.axvline(0.5, color='k', linestyle='--', label="f Nyquist")
         plt.xlabel("Spatial frequency f/(1/w) [-]")
         plt.ylabel("MTF")
-        plt.title(f"System MTF - ACT slice ({band})")
+        plt.title(f"System MTF - ACT slice ({band})\nMTF(0.5) = {mtf_nyquist_act:.3f}")
         plt.legend(loc="best")
         plt.grid(True)
         plt.show()
 
         # ==============================
-        #  ALT SLICE  (vertical cut)
+        #  ALT SLICE
         # ==============================
-        center_act = ncolumns // 2
+        fnAlt_pos, Hsys_alt_pos = positive_part(fnAlt, extract_slice(Hsys, ncolumns, is_act=False))
+        mtf_nyquist_alt = mtf_at_nyquist(fnAlt_pos, Hsys_alt_pos)
+
         plt.figure(figsize=(8, 6))
         for label, H in mtf_components.items():
-            slice_alt = extract_slice(H, ncolumns, is_act=False)
-            fnAlt_pos, slice_alt_pos = positive_part(fnAlt, slice_alt)
-            plt.plot(fnAlt_pos, slice_alt_pos, label=label,
-                     linewidth=2 if label == "System MTF" else 1)
+            fn_pos, H_pos = positive_part(fnAlt, extract_slice(H, ncolumns, is_act=False))
+            plt.plot(fn_pos, H_pos, label=label, linewidth=2 if label == "System MTF" else 1)
 
         plt.axvline(0.5, color='k', linestyle='--', label="f Nyquist")
         plt.xlabel("Spatial frequency f/(1/w) [-]")
         plt.ylabel("MTF")
-        plt.title(f"System MTF - ALT slice ({band})")
+        plt.title(f"System MTF - ALT slice ({band})\nMTF(0.5) = {mtf_nyquist_alt:.3f}")
         plt.legend(loc="best")
         plt.grid(True)
         plt.show()
+
+        # ==============================
+        #  REPORT
+        # ==============================
+        print(f"[{band}] MTF at Nyquist (ACT): {mtf_nyquist_act:.3f}")
+        print(f"[{band}] MTF at Nyquist (ALT): {mtf_nyquist_alt:.3f}")
+
+        # --- Quality evaluation ---
+        for direction, val in [("ACT", mtf_nyquist_act), ("ALT", mtf_nyquist_alt)]:
+            if val >= 0.3:
+                quality = "Good"
+            elif val >= 0.15:
+                quality = "Decent"
+            else:
+                quality = "Poor"
+            print(f" → {direction}: {quality} MTF performance at Nyquist.")
+
+
