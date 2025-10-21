@@ -23,6 +23,16 @@ ism_toa1_optical_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_
 ism_toa2_optical_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\output','ism_toa_optical_VNIR-2.nc')
 ism_toa3_optical_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\output','ism_toa_optical_VNIR-3.nc')
 
+ism_toa0=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\myoutputs','ism_toa_VNIR-0.nc')
+ism_toa1=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\myoutputs','ism_toa_VNIR-1.nc')
+ism_toa2=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\myoutputs','ism_toa_VNIR-2.nc')
+ism_toa3=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\myoutputs','ism_toa_VNIR-3.nc')
+
+ism_toa0_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\output','ism_toa_VNIR-0.nc')
+ism_toa1_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\output','ism_toa_VNIR-1.nc')
+ism_toa2_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\output','ism_toa_VNIR-2.nc')
+ism_toa3_original=readToa(r'C:\Users\mesqu\OneDrive\Escritorio\EODP_TER_2021\EODP-TS-ISM\output','ism_toa_VNIR-3.nc')
+
 #Test 1
 def diff_band(toa, toa_original):
     tol = 0.01
@@ -61,3 +71,18 @@ f = 0.5262                          # [m] Focal length
 Tr = 0.99                           # [-] Optical transmittance
 rad2irrad_conversion_factor = Tr * (np.pi / 4) * (D/f)**2
 print("rad2irrad Conversion Rate: ", rad2irrad_conversion_factor)
+print("")
+
+#SEGUNDA PARTE
+
+#Test 1
+threshold0_2, ok0_2 = diff_band(ism_toa0 , ism_toa0_original)
+threshold1_2, ok1_2 = diff_band(ism_toa1 , ism_toa1_original)
+threshold2_2, ok2_2 = diff_band(ism_toa2 , ism_toa2_original)
+threshold3_2, ok3_2 = diff_band(ism_toa3 , ism_toa3_original)
+print("OUTPUT")
+print("Band 0: threshold=", threshold0_2, ". below 0.01%?=", ok0_2)
+print("Band 1: threshold=", threshold1_2, ". below 0.01%?=", ok1_2)
+print("Band 2: threshold=", threshold2_2, ". below 0.01%?=", ok2_2)
+print("Band 3: threshold=", threshold3_2, ". below 0.01%?=", ok3_2)
+print("")
