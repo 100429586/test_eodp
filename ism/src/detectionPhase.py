@@ -163,9 +163,12 @@ class detectionPhase(initIsm):
         # 1. Calculate DSNU(act) per píxel
         dsnu_act = np.abs(np.random.normal(0, 1, toa.shape[1])) * kdsnu
         # 2. Calculate Sd (constant component)
-        Sd = ds_A_coeff * (T / Tref) ** 3 * np.exp(-ds_B_coeff * (1 / T - 1 / Tref))
+        Sd = ds_A_coeff * ((T / Tref) ** 3) * np.exp((-ds_B_coeff) * ((1.0 / T) - (1.0 / Tref)))
         # 3. Calculate DS(act) per píxel
         DS_act = Sd * (1 + dsnu_act)
         # 4. Sum the Dark Signal to the in signal
         toa = toa + DS_act
+        return toa
+
+
         return toa

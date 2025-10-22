@@ -86,3 +86,4 @@ print("Band 1: threshold=", threshold1_2, ". below 0.01%?=", ok1_2)
 print("Band 2: threshold=", threshold2_2, ". below 0.01%?=", ok2_2)
 print("Band 3: threshold=", threshold3_2, ". below 0.01%?=", ok3_2)
 print("")
+
